@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
-module Arbor.Monad.Counter.Type where
+module Arbor.Monad.Metric.Type where
 
 import Control.Monad.Except
 import Control.Monad.Reader

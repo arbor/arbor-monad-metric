@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds        #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Arbor.Monad.Counter
+module Arbor.Monad.Metric
   ( MonadMetric
   , Z.getMetrics
 
@@ -19,15 +19,15 @@ module Arbor.Monad.Counter
   , currentStats
   ) where
 
-import Arbor.Monad.Counter.Type  (CounterId, CounterValue (CounterValue), CountersMap, Metrics (Metrics), MonadMetric)
+import Arbor.Monad.Metric.Type   (CounterId, CounterValue (CounterValue), CountersMap, Metrics (Metrics), MonadMetric)
 import Control.Lens
 import Control.Monad.IO.Class
 import Control.Monad.STM         (STM, atomically)
 import Data.Generics.Product.Any
 
-import qualified Arbor.Monad.Counter.Type as Z
-import qualified Control.Concurrent.STM   as STM
-import qualified Data.Map.Strict          as M
+import qualified Arbor.Monad.Metric.Type as Z
+import qualified Control.Concurrent.STM  as STM
+import qualified Data.Map.Strict         as M
 
 newMetricsIO :: IO Metrics
 newMetricsIO = Metrics <$> STM.newTVarIO M.empty
