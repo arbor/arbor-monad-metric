@@ -1,6 +1,6 @@
 module Arbor.Monad.Metric.Class where
 
-import Arbor.Monad.Metric.Internal.Metrics
+import Arbor.Monad.Metric.Metrics
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State

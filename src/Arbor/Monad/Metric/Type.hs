@@ -23,3 +23,7 @@ newtype Gauge = Gauge
 newtype CounterValue = CounterValue
   { var   :: STM.TVar Int
   } deriving (Generic)
+
+newtype GaugeValue = GaugeValue
+  { var   :: STM.TVar Int
+  } deriving (Generic)

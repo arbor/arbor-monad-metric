@@ -18,22 +18,26 @@ module Arbor.Monad.Metric
   , currentCounters
   ) where
 
-import Arbor.Monad.Metric.Class            (MonadMetric (..))
-import Arbor.Monad.Metric.Internal.Metrics (Metrics (Metrics))
-import Arbor.Monad.Metric.Type             (CounterValue (CounterValue), MetricId)
+import Arbor.Monad.Metric.Class   (MonadMetric (..))
+import Arbor.Monad.Metric.Metrics (Metrics (Metrics))
+import Arbor.Monad.Metric.Type    (CounterValue (CounterValue), MetricId)
 import Control.Lens
 import Control.Monad.IO.Class
-import Control.Monad.STM                   (STM, atomically)
+import Control.Monad.STM          (STM, atomically)
 import Data.Generics.Product.Any
 
 import qualified Control.Concurrent.STM as STM
 import qualified Data.Map.Strict        as M
 
 newMetricsIO :: IO Metrics
-newMetricsIO = Metrics <$> STM.newTVarIO M.empty
+newMetricsIO = Metrics
+  <$> STM.newTVarIO M.empty
+  <*> STM.newTVarIO M.empty
 
 newMetrics :: STM.STM Metrics
-newMetrics = Metrics <$> STM.newTVar M.empty
+newMetrics = Metrics
+  <$> STM.newTVar M.empty
+  <*> STM.newTVar M.empty
 
 -- Increase the current value by 1
 incByKey :: MonadMetric m => MetricId -> m ()
@@ -59,7 +63,7 @@ modifyByKey f key = do
 
 -- Modify the current value with the supplied function
 modifyByKey' :: (Int -> Int) -> Metrics -> MetricId -> IO ()
-modifyByKey' f (Metrics tCurrent) key = atomically $ do
+modifyByKey' f (Metrics tCurrent _) key = atomically $ do
   current <- STM.readTVar tCurrent
   case M.lookup key current of
     Just (CounterValue tv) -> STM.modifyTVar tv f
