@@ -18,12 +18,12 @@ newtype MetricId = MetricId
   { name :: String
   } deriving (Eq, Ord, Show)
 
-newtype CountValue = CountValue
+newtype CounterValue = CounterValue
   { var   :: STM.TVar Int
   } deriving (Generic)
 
 newtype Metrics = Metrics
-  { counts  :: STM.TVar (Map MetricId CountValue)
+  { counters  :: STM.TVar (Map MetricId CounterValue)
   } deriving (Generic)
 
 class (Monad m, MonadIO m) => MonadMetric m where
