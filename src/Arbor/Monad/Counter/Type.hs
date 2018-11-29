@@ -14,16 +14,18 @@ import GHC.Generics
 
 import qualified Control.Concurrent.STM as STM
 
-type CounterKey = String
+newtype CounterId = CounterId
+  { name :: String
+  } deriving (Eq, Ord, Show)
 
 newtype CounterValue = CounterValue
   { var   :: STM.TVar Int
   } deriving (Generic)
 
-type CountersMap = Map CounterKey CounterValue
+type CountersMap = Map CounterId CounterValue
 
 newtype Counters = Counters
-  { current  :: STM.TVar (Map CounterKey CounterValue)
+  { current  :: STM.TVar (Map CounterId CounterValue)
   } deriving (Generic)
 
 class (Monad m, MonadIO m) => MonadCounters m where
