@@ -2,8 +2,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Arbor.Monad.Metric
-  ( MonadMetric
-  , Z.getMetrics
+  ( MonadMetric(..)
 
   , incByKey
   , incByKey'
@@ -19,15 +18,15 @@ module Arbor.Monad.Metric
   , currentCounters
   ) where
 
-import Arbor.Monad.Metric.Type   (CounterValue (CounterValue), MetricId, Metrics (Metrics), MonadMetric)
+import Arbor.Monad.Metric.Class  (MonadMetric (..))
+import Arbor.Monad.Metric.Type   (CounterValue (CounterValue), MetricId, Metrics (Metrics))
 import Control.Lens
 import Control.Monad.IO.Class
 import Control.Monad.STM         (STM, atomically)
 import Data.Generics.Product.Any
 
-import qualified Arbor.Monad.Metric.Type as Z
-import qualified Control.Concurrent.STM  as STM
-import qualified Data.Map.Strict         as M
+import qualified Control.Concurrent.STM as STM
+import qualified Data.Map.Strict        as M
 
 newMetricsIO :: IO Metrics
 newMetricsIO = Metrics <$> STM.newTVarIO M.empty
@@ -54,7 +53,7 @@ addByKey' n = modifyByKey' (+n)
 -- Modify the current value with the supplied function
 modifyByKey :: MonadMetric m => (Int -> Int) -> MetricId -> m ()
 modifyByKey f key = do
-  metrics <- Z.getMetrics
+  metrics <- getMetrics
   liftIO $ modifyByKey' f metrics key
 
 -- Modify the current value with the supplied function
@@ -70,7 +69,7 @@ modifyByKey' f (Metrics tCurrent) key = atomically $ do
 -- Set the current value
 setByKey :: MonadMetric m => Int -> MetricId -> m ()
 setByKey value key = do
-  metrics <- Z.getMetrics
+  metrics <- getMetrics
   liftIO $ setByKey' value metrics key
 
 -- Set the current value
@@ -86,7 +85,7 @@ extractValues m = do
 
 currentCounters :: MonadMetric m => m (M.Map MetricId CounterValue)
 currentCounters = do
-  metrics <- Z.getMetrics
+  metrics <- getMetrics
   liftIO $ STM.readTVarIO $ metrics ^. the @"counters"
 
 
