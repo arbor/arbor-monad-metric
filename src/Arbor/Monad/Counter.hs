@@ -2,8 +2,8 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Arbor.Monad.Counter
-  ( MonadCounters
-  , Z.getCounters
+  ( MonadMetrics
+  , Z.getMetrics
 
   , incByKey
   , incByKey'
@@ -12,14 +12,14 @@ module Arbor.Monad.Counter
   , setByKey
   , setByKey'
 
-  , newCounters
-  , newCountersIO
+  , newMetrics
+  , newMetricsIO
 
   , extractValues
   , currentStats
   ) where
 
-import Arbor.Monad.Counter.Type  (CounterId, CounterValue (CounterValue), Counters (Counters), CountersMap, MonadCounters)
+import Arbor.Monad.Counter.Type  (CounterId, CounterValue (CounterValue), CountersMap, Metrics (Metrics), MonadMetrics)
 import Control.Lens
 import Control.Monad.IO.Class
 import Control.Monad.STM         (STM, atomically)
@@ -29,37 +29,37 @@ import qualified Arbor.Monad.Counter.Type as Z
 import qualified Control.Concurrent.STM   as STM
 import qualified Data.Map.Strict          as M
 
-newCountersIO :: IO Counters
-newCountersIO = Counters <$> STM.newTVarIO M.empty
+newMetricsIO :: IO Metrics
+newMetricsIO = Metrics <$> STM.newTVarIO M.empty
 
-newCounters :: STM.STM Counters
-newCounters = Counters <$> STM.newTVar M.empty
+newMetrics :: STM.STM Metrics
+newMetrics = Metrics <$> STM.newTVar M.empty
 
 -- Increase the current value by 1
-incByKey :: MonadCounters m => CounterId -> m ()
+incByKey :: MonadMetrics m => CounterId -> m ()
 incByKey = modifyByKey (+1)
 
 -- Increase the current value by 1
-incByKey' :: Counters -> CounterId -> IO ()
+incByKey' :: Metrics -> CounterId -> IO ()
 incByKey' = modifyByKey' (+1)
 
 -- Increase the current value by n
-addByKey :: MonadCounters m => Int -> CounterId -> m ()
+addByKey :: MonadMetrics m => Int -> CounterId -> m ()
 addByKey n = modifyByKey (+n)
 
 -- Increase the current value by n
-addByKey' :: Int -> Counters -> CounterId -> IO ()
+addByKey' :: Int -> Metrics -> CounterId -> IO ()
 addByKey' n = modifyByKey' (+n)
 
 -- Modify the current value with the supplied function
-modifyByKey :: MonadCounters m => (Int -> Int) -> CounterId -> m ()
+modifyByKey :: MonadMetrics m => (Int -> Int) -> CounterId -> m ()
 modifyByKey f key = do
-  counters <- Z.getCounters
+  counters <- Z.getMetrics
   liftIO $ modifyByKey' f counters key
 
 -- Modify the current value with the supplied function
-modifyByKey' :: (Int -> Int) -> Counters -> CounterId -> IO ()
-modifyByKey' f (Counters tCurrent) key = atomically $ do
+modifyByKey' :: (Int -> Int) -> Metrics -> CounterId -> IO ()
+modifyByKey' f (Metrics tCurrent) key = atomically $ do
   current <- STM.readTVar tCurrent
   case M.lookup key current of
     Just (CounterValue tv) -> STM.modifyTVar tv f
@@ -68,16 +68,16 @@ modifyByKey' f (Counters tCurrent) key = atomically $ do
       STM.writeTVar tCurrent (M.insert key (CounterValue tv) current)
 
 -- Set the current value
-setByKey :: MonadCounters m => Int -> CounterId -> m ()
+setByKey :: MonadMetrics m => Int -> CounterId -> m ()
 setByKey value key = do
-  counters <- Z.getCounters
+  counters <- Z.getMetrics
   liftIO $ setByKey' value counters key
 
 -- Set the current value
-setByKey' :: Int -> Counters -> CounterId -> IO ()
+setByKey' :: Int -> Metrics -> CounterId -> IO ()
 setByKey' = modifyByKey' . const
 
--- valuesByKeys :: MonadCounters m => [CounterId] -> m [Int]
+-- valuesByKeys :: MonadMetrics m => [CounterId] -> m [Int]
 -- valuesByKeys ks = do
 --   (Counters cur _) <- Z.getCounters
 --   liftIO $ atomically $ sequence $ readTVar <$> ((\k -> cur M.! k ^. the @"var") <$> ks)
@@ -89,7 +89,7 @@ extractValues m = do
   nums <- sequence $ STM.readTVar <$> tvars
   return (zip names nums, tvars)
 
-currentStats :: MonadCounters m => m CountersMap
+currentStats :: MonadMetrics m => m CountersMap
 currentStats = do
-  counters <- Z.getCounters
-  liftIO $ STM.readTVarIO $ counters ^. the @"current"
+  counters <- Z.getMetrics
+  liftIO $ STM.readTVarIO $ counters ^. the @"counts"
