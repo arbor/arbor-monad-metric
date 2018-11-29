@@ -28,23 +28,23 @@ newtype Metrics = Metrics
   { counts  :: STM.TVar (Map CounterId CounterValue)
   } deriving (Generic)
 
-class (Monad m, MonadIO m) => MonadMetrics m where
+class (Monad m, MonadIO m) => MonadMetric m where
   getMetrics :: m Metrics
 
-instance MonadMetrics m => MonadMetrics (ExceptT e m) where
+instance MonadMetric m => MonadMetric (ExceptT e m) where
   getMetrics = lift getMetrics
 
-instance MonadMetrics m => MonadMetrics (IdentityT m) where
+instance MonadMetric m => MonadMetric (IdentityT m) where
   getMetrics = lift getMetrics
 
-instance MonadMetrics m => MonadMetrics (MaybeT m) where
+instance MonadMetric m => MonadMetric (MaybeT m) where
   getMetrics = lift getMetrics
 
-instance MonadMetrics m => MonadMetrics (ReaderT e m) where
+instance MonadMetric m => MonadMetric (ReaderT e m) where
   getMetrics = lift getMetrics
 
-instance MonadMetrics m => MonadMetrics (ResourceT m) where
+instance MonadMetric m => MonadMetric (ResourceT m) where
   getMetrics = lift getMetrics
 
-instance MonadMetrics m => MonadMetrics (StateT s m) where
+instance MonadMetric m => MonadMetric (StateT s m) where
   getMetrics = lift getMetrics
