@@ -20,10 +20,6 @@ newtype Gauge = Gauge
   { id :: MetricId
   } deriving (Eq, Ord, Show)
 
-newtype CounterValue = CounterValue
-  { var   :: STM.TVar Int
-  } deriving (Generic)
-
-newtype GaugeValue = GaugeValue
-  { var   :: STM.TVar Int
+newtype MetricValue = MetricValue
+  { var   :: STM.TVar Double
   } deriving (Generic)

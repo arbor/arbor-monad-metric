@@ -9,6 +9,6 @@ import GHC.Generics
 import qualified Control.Concurrent.STM as STM
 
 data Metrics = Metrics
-  { counters :: STM.TVar (Map MetricId CounterValue)
-  , gauges   :: STM.TVar (Map MetricId GaugeValue)
+  { counters :: STM.TVar (Map MetricId MetricValue)
+  , gauges   :: STM.TVar (Map MetricId MetricValue)
   } deriving (Generic)
