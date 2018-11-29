@@ -13,35 +13,27 @@ module Arbor.Monad.Counter
   , setByKey'
 
   , newCounters
-  , resetStats
-  , valuesByKeys
+  , newCountersIO
+
   , extractValues
-  , newCountersMap
-  , deltaStats
   , currentStats
   ) where
 
-import Arbor.Monad.Counter.Type    (CounterKey, CounterValue (CounterValue), Counters (Counters), CountersMap, MonadCounters)
-import Control.Concurrent.STM.TVar
+import Arbor.Monad.Counter.Type  (CounterKey, CounterValue (CounterValue), Counters (Counters), CountersMap, MonadCounters)
 import Control.Lens
 import Control.Monad.IO.Class
-import Control.Monad.STM           (STM, atomically)
-import Data.Foldable
+import Control.Monad.STM         (STM, atomically)
 import Data.Generics.Product.Any
 
 import qualified Arbor.Monad.Counter.Type as Z
-import qualified Data.List                as DL
+import qualified Control.Concurrent.STM   as STM
 import qualified Data.Map.Strict          as M
 
-newCounters :: [CounterKey] -> IO Counters
-newCounters ks = Counters <$> newCountersMap ks <*> newCountersMap ks
+newCountersIO :: IO Counters
+newCountersIO = Counters <$> STM.newTVarIO M.empty
 
-newCountersMap :: [CounterKey] -> IO CountersMap
-newCountersMap (k:ks) = do
-  m <- newCountersMap ks
-  v <- CounterValue <$> newTVarIO 0
-  return $ M.insert k v m
-newCountersMap [] = return M.empty
+newCounters :: STM.STM Counters
+newCounters = Counters <$> STM.newTVar M.empty
 
 -- Increase the current value by 1
 incByKey :: MonadCounters m => CounterKey -> m ()
@@ -67,9 +59,13 @@ modifyByKey f key = do
 
 -- Modify the current value with the supplied function
 modifyByKey' :: (Int -> Int) -> Counters -> CounterKey -> IO ()
-modifyByKey' f (Counters cur _) key = do
-  let (CounterValue tv) = cur M.! key
-  atomically $ modifyTVar tv f
+modifyByKey' f (Counters tCurrent) key = atomically $ do
+  current <- STM.readTVar tCurrent
+  case M.lookup key current of
+    Just (CounterValue tv) -> STM.modifyTVar tv f
+    Nothing -> do
+      tv <- STM.newTVar (f 0)
+      STM.writeTVar tCurrent (M.insert key (CounterValue tv) current)
 
 -- Set the current value
 setByKey :: MonadCounters m => Int -> CounterKey -> m ()
@@ -79,49 +75,21 @@ setByKey value key = do
 
 -- Set the current value
 setByKey' :: Int -> Counters -> CounterKey -> IO ()
-setByKey' value (Counters cur _) key = do
-  let (CounterValue tv) = cur M.! key
-  atomically $ writeTVar tv value
+setByKey' = modifyByKey' . const
 
-valuesByKeys :: MonadCounters m => [CounterKey] -> m [Int]
-valuesByKeys ks = do
-  (Counters cur _) <- Z.getCounters
-  liftIO $ atomically $ sequence $ readTVar <$> ((\k -> cur M.! k ^. the @"var") <$> ks)
+-- valuesByKeys :: MonadCounters m => [CounterKey] -> m [Int]
+-- valuesByKeys ks = do
+--   (Counters cur _) <- Z.getCounters
+--   liftIO $ atomically $ sequence $ readTVar <$> ((\k -> cur M.! k ^. the @"var") <$> ks)
 
-extractValues :: CountersMap -> STM ([(CounterKey, Int)], [TVar Int])
+extractValues :: CountersMap -> STM ([(CounterKey, Int)], [STM.TVar Int])
 extractValues m = do
   let names = M.keys m
   let tvars = (^. the @"var") <$> M.elems m
-  nums <- sequence $ readTVar <$> tvars
+  nums <- sequence $ STM.readTVar <$> tvars
   return (zip names nums, tvars)
 
--- store the current stats into previous;
--- calculate the delta
-deltaStats :: MonadCounters m => m CountersMap
-deltaStats = do
-  counters <- Z.getCounters
-  deltas <- liftIO $ newCountersMap $ M.keys $ counters ^. the @"current"
-  -- deltaCounters is accumulated into based on the diff between last and current counter values.
-  liftIO $ atomically $ do
-    (_, oldTvars)   <- extractValues $ counters ^. the @"previous"
-    (_, newTvars)   <- extractValues $ counters ^. the @"current"
-    (_, deltaTvars) <- extractValues deltas
-    for_ (DL.zip3 oldTvars newTvars deltaTvars) $ \(old, new, delta) -> do
-      new' <- readTVar new
-      old' <- readTVar old
-      writeTVar old new'
-      writeTVar delta (new' - old')
-    return deltas
-
 currentStats :: MonadCounters m => m CountersMap
-currentStats = Z.getCounters <&> (^. the @"current")
-
-resetStats :: MonadCounters m => m ()
-resetStats = do
+currentStats = do
   counters <- Z.getCounters
-  sequence_ $ setZeroes <$> [counters ^. the @"current", counters ^. the @"previous"]
-
-setZeroes :: MonadIO m => CountersMap -> m ()
-setZeroes cs = liftIO $ atomically $ do
-  (_, tvars) <- extractValues cs
-  traverse_ (`modifyTVar` const 0) tvars
+  liftIO $ STM.readTVarIO $ counters ^. the @"current"

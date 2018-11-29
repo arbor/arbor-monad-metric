@@ -3,7 +3,6 @@
 
 module Arbor.Monad.Counter.Type where
 
-import Control.Concurrent.STM.TVar
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
@@ -13,17 +12,18 @@ import Control.Monad.Trans.Resource
 import Data.Map.Strict
 import GHC.Generics
 
+import qualified Control.Concurrent.STM as STM
+
 type CounterKey = String
 
 newtype CounterValue = CounterValue
-  { var   :: TVar Int
+  { var   :: STM.TVar Int
   } deriving (Generic)
 
 type CountersMap = Map CounterKey CounterValue
 
-data Counters = Counters
-  { current  :: CountersMap
-  , previous :: CountersMap
+newtype Counters = Counters
+  { current  :: STM.TVar (Map CounterKey CounterValue)
   } deriving (Generic)
 
 class (Monad m, MonadIO m) => MonadCounters m where
