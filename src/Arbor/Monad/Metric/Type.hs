@@ -3,7 +3,6 @@
 
 module Arbor.Monad.Metric.Type where
 
-import Data.Map.Strict
 import Data.String
 import GHC.Generics
 
@@ -23,8 +22,4 @@ newtype Gauge = Gauge
 
 newtype CounterValue = CounterValue
   { var   :: STM.TVar Int
-  } deriving (Generic)
-
-newtype Metrics = Metrics
-  { counters  :: STM.TVar (Map MetricId CounterValue)
   } deriving (Generic)

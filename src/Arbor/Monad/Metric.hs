@@ -18,11 +18,12 @@ module Arbor.Monad.Metric
   , currentCounters
   ) where
 
-import Arbor.Monad.Metric.Class  (MonadMetric (..))
-import Arbor.Monad.Metric.Type   (CounterValue (CounterValue), MetricId, Metrics (Metrics))
+import Arbor.Monad.Metric.Class            (MonadMetric (..))
+import Arbor.Monad.Metric.Internal.Metrics (Metrics (Metrics))
+import Arbor.Monad.Metric.Type             (CounterValue (CounterValue), MetricId)
 import Control.Lens
 import Control.Monad.IO.Class
-import Control.Monad.STM         (STM, atomically)
+import Control.Monad.STM                   (STM, atomically)
 import Data.Generics.Product.Any
 
 import qualified Control.Concurrent.STM as STM
@@ -87,5 +88,3 @@ currentCounters :: MonadMetric m => m (M.Map MetricId CounterValue)
 currentCounters = do
   metrics <- getMetrics
   liftIO $ STM.readTVarIO $ metrics ^. the @"counters"
-
-
