@@ -22,7 +22,6 @@ source-repository head
 library
   exposed-modules:
       Arbor.Monad.Metric
-      Arbor.Monad.Metric.Datadog
       Arbor.Monad.Metric.Generic
       Arbor.Monad.Metric.Type
   other-modules:
@@ -34,15 +33,12 @@ library
   build-depends:
       arbor-datadog
     , base >=4.7 && <5
-    , bytestring
     , containers
     , generic-lens
     , lens
     , mtl
-    , network
     , resourcet
     , stm
-    , text
     , transformers
   default-language: Haskell2010
 
@@ -53,7 +49,6 @@ test-suite arbor-monad-metric-test
       Arbor.Monad.MetricSpec
       Arbor.Monad.UdpServer
       Arbor.Monad.Metric
-      Arbor.Monad.Metric.Datadog
       Arbor.Monad.Metric.Generic
       Arbor.Monad.Metric.Type
       Paths_arbor_monad_metric
@@ -77,6 +72,5 @@ test-suite arbor-monad-metric-test
     , network
     , resourcet
     , stm
-    , text
     , transformers
   default-language: Haskell2010
