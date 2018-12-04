@@ -21,7 +21,7 @@
       "command": "/bin/bash",
       "args": [
         "-c",
-        "echo START_STACK_BUILD && cd ${workspaceRoot} && ./project.sh build && echo END_STACK_BUILD "
+        "echo START_BUILD && cd ${workspaceRoot} && ./project.sh build && echo END_BUILD "
       ],
       "problemMatcher": {
         "owner": "haskell",
