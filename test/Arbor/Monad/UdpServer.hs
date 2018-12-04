@@ -21,6 +21,8 @@ createUdpServer port = withSocketsDo $ do
   let serveraddr = head addrinfos
 
   sock <- socket (addrFamily serveraddr) Datagram defaultProtocol
+  setSocketOption sock ReuseAddr 1
+  setSocketOption sock ReusePort 1
 
   bind sock (addrAddress serveraddr)
   return sock
@@ -31,6 +33,6 @@ runUdpServer :: ()
   -> IO ()
 runUdpServer sock handler = withSocketsDo $ procMessages sock
   where procMessages sock = do
-          (msg, addr) <- BS.recvFrom sock 1024
+          (msg, addr) <- BS.recvFrom sock 4096
           handler addr msg
           procMessages sock

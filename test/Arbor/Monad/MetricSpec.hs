@@ -37,7 +37,7 @@ spec :: Spec
 spec = describe "Arbor.Monad.MetricSpec" $ do
   it "Metrics library actually sends statsd messages over UDP" $ requireTest $ do
     tMessages <- liftIO $ STM.newTVarIO []
-    sock <- liftIO $ UDP.createUdpServer "5555"
+    sock <- liftIO $ UDP.createUdpServer "6666"
     threadId <- liftIO $ forkIO $ do
       UDP.runUdpServer sock (handler tMessages)
     liftIO $ threadDelay 3000000
@@ -54,6 +54,7 @@ spec = describe "Arbor.Monad.MetricSpec" $ do
       (gauges, _) <- liftIO . STM.atomically $ STM.swapTVar tGaugeMap MAP.empty >>= M.extractValues (Proxy @M.Gauge)
       liftIO $ putStrLn $ show gauges
       M.logStats
+      liftIO $ threadDelay 1000000
 
     liftIO $ threadDelay 6000000
     liftIO $ killThread threadId

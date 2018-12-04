@@ -44,7 +44,7 @@ newtype MetricSpecApp a = MetricSpecApp
 
 runMetricSpecApp :: MetricSpecApp () -> IO ()
 runMetricSpecApp f = do
-  let statsOpts = Z.DogStatsSettings "localhost" 5555
+  let statsOpts = Z.DogStatsSettings "localhost" 6666
   statsClient <- S.createStatsClient statsOpts (Z.MetricName "MetricSpecApp") []
   metrics <- newMetricsIO
   let config = MiniConfig metrics statsClient
