@@ -40,23 +40,16 @@ spec = describe "Arbor.Monad.MetricSpec" $ do
     sock <- liftIO $ UDP.createUdpServer "6666"
     threadId <- liftIO $ forkIO $ do
       UDP.runUdpServer sock (handler tMessages)
-    liftIO $ threadDelay 3000000
+    liftIO $ threadDelay 2000000
 
+    let counterExpected = "MetricSpecApp.counters:10|c|#stat:test.counter\nMetricSpecApp.test.counter:10|c\n" :: BS.ByteString
     let gaugeExpected = "MetricSpecApp.gauge:20.000000|g|#stat:test.gauge\nMetricSpecApp.test.gauge:20.000000|g\n" :: BS.ByteString
     liftIO $ A.runMetricSpecApp $ do
       M.metric (M.Counter "test.counter") 10
       M.metric (M.Gauge "test.gauge") 20
-      metrics <- M.getMetrics
-      tCounterMap <- M.getMetricMapTVar
-      (counters, _) <- liftIO . STM.atomically $ STM.swapTVar tCounterMap MAP.empty >>= M.extractValues (Proxy @M.Counter)
-      liftIO $ putStrLn $ show counters
-      tGaugeMap <- M.getMetricMapTVar
-      (gauges, _) <- liftIO . STM.atomically $ STM.swapTVar tGaugeMap MAP.empty >>= M.extractValues (Proxy @M.Gauge)
-      liftIO $ putStrLn $ show gauges
       M.logStats
-      liftIO $ threadDelay 1000000
 
-    liftIO $ threadDelay 6000000
+    liftIO $ threadDelay 3000000
     liftIO $ killThread threadId
     messages <- liftIO $ STM.readTVarIO tMessages
-    messages === [gaugeExpected]
+    messages === [counterExpected <> gaugeExpected]
