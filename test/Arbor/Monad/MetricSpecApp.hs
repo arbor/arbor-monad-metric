@@ -16,12 +16,19 @@ import Data.Generics.Product.Any
 import GHC.Generics
 import System.Log.FastLogger
 
-newtype MiniConfig = MiniConfig
-  { metrics      :: Metrics
+import qualified Arbor.Network.StatsD      as S
+import qualified Arbor.Network.StatsD.Type as Z
+
+data MiniConfig = MiniConfig
+  { metrics     :: Metrics
+  , statsClient :: Z.StatsClient
   } deriving (Generic)
 
 instance MonadMetrics MetricSpecApp where
   getMetrics = reader metrics
+
+instance S.MonadStats MetricSpecApp where
+  getStatsClient = reader statsClient
 
 newtype MetricSpecApp a = MetricSpecApp
   { unMetricSpecApp :: ReaderT MiniConfig (LoggingT IO) a
@@ -37,5 +44,8 @@ newtype MetricSpecApp a = MetricSpecApp
 
 runMetricSpecApp :: MetricSpecApp () -> IO ()
 runMetricSpecApp f = do
-  config <- MiniConfig <$> newMetricsIO
+  let statsOpts = Z.DogStatsSettings "localhost" 5555
+  statsClient <- S.createStatsClient statsOpts (Z.MetricName "MetricSpecApp") []
+  metrics <- newMetricsIO
+  let config = MiniConfig metrics statsClient
   runLoggingT (runReaderT (unMetricSpecApp f) config) $ \_ _ _ _ -> return ()
