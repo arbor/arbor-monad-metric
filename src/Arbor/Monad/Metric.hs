@@ -5,12 +5,15 @@ module Arbor.Monad.Metric
   ( MonadMetrics
   , Z.getMetrics
   , metric
+  , Counter(..)
+  , Gauge(..)
+  , Metrics(..)
   , newMetricsIO
   , extractValues
   ) where
 
 import Arbor.Monad.Metric.Generic  (metric)
-import Arbor.Monad.Metric.Type     (MetricFamily (..), MetricMap, Metrics (Metrics), MonadMetrics)
+import Arbor.Monad.Metric.Type     (Counter (..), Gauge (..), MetricFamily (..), MetricMap, Metrics (Metrics), MonadMetrics)
 import Control.Concurrent.STM.TVar
 import Control.Monad.STM           (STM)
 import Data.Proxy
