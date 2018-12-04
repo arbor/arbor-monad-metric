@@ -36,8 +36,11 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , exceptions
+    , fast-logger
     , generic-lens
     , lens
+    , monad-logger
     , mtl
     , network
     , resourcet
