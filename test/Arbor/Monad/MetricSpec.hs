@@ -32,6 +32,7 @@ spec = describe "Arbor.Monad.MetricSpec" $ do
     sock <- liftIO $ UDP.createUdpServer "5555"
     threadId <- liftIO $ forkIO $ do
       UDP.runUdpServer sock (handler tMessages)
+    runMetricSpecApp
     liftIO $ threadDelay 10000000
     liftIO $ killThread threadId
     messages <- liftIO $ STM.readTVarIO tMessages

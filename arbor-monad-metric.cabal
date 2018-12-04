@@ -36,11 +36,8 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
-    , exceptions
-    , fast-logger
     , generic-lens
     , lens
-    , monad-logger
     , mtl
     , network
     , resourcet
@@ -54,6 +51,7 @@ test-suite arbor-monad-metric-test
   main-is: Spec.hs
   other-modules:
       Arbor.Monad.MetricSpec
+      Arbor.Monad.MetricSpecApp
       Arbor.Monad.UdpServer
       Arbor.Monad.Metric
       Arbor.Monad.Metric.Datadog
@@ -71,11 +69,14 @@ test-suite arbor-monad-metric-test
     , base >=4.7 && <5
     , bytestring
     , containers
+    , exceptions
+    , fast-logger
     , generic-lens
     , hedgehog
     , hspec
     , hw-hspec-hedgehog
     , lens
+    , monad-logger
     , mtl
     , network
     , resourcet

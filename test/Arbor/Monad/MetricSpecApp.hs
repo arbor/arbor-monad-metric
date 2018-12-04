@@ -3,12 +3,12 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE TypeApplications           #-}
 
 module Arbor.Monad.MetricSpecApp
   ( runMetricSpecApp
   ) where
 
+import Arbor.Monad.Metric
 import Control.Monad.Catch
 import Control.Monad.Logger      (LoggingT, MonadLogger, runLoggingT)
 import Control.Monad.Reader
@@ -17,8 +17,11 @@ import GHC.Generics
 import System.Log.FastLogger
 
 newtype MiniConfig = MiniConfig
-  { env      :: Int
+  { metrics      :: Metrics
   } deriving (Generic)
+
+instance MonadMetrics MetricSpecApp where
+  getMetrics = reader metrics
 
 newtype MetricSpecApp a = MetricSpecApp
   { unMetricSpecApp :: ReaderT MiniConfig (LoggingT IO) a
@@ -34,5 +37,5 @@ newtype MetricSpecApp a = MetricSpecApp
 
 runMetricSpecApp :: MetricSpecApp () -> IO ()
 runMetricSpecApp f = do
-  let config = MiniConfig 0
+  config <- MiniConfig <$> newMetricsIO
   runLoggingT (runReaderT (unMetricSpecApp f) config) $ \_ _ _ _ -> return ()
