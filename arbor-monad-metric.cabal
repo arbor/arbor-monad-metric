@@ -1,7 +1,8 @@
 name:           arbor-monad-metric
 version:        0.0.2
 description:    Please see the README on Github at <https://github.com/arbor/arbor-monad-metric#readme>
-category:       Services
+synopsis:       Core metric library for publishing metrics.
+category:       Metrics
 homepage:       https://github.com/arbor/arbor-monad-metric#readme
 bug-reports:    https://github.com/arbor/arbor-monad-metric/issues
 author:         Arbor Networks
