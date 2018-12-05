@@ -21,15 +21,21 @@ import GHC.Generics
 
 import qualified Control.Concurrent.STM as STM
 import qualified Data.Map.Strict        as M
+import qualified Data.Set               as S
+
+data Tag = Tag
+  { name  :: Text
+  , value :: Text
+  } deriving (Eq, Ord, Show, Generic)
 
 data Counter = Counter
   { name :: Text
-  , tags :: [Text]
+  , tags :: S.Set Tag
   } deriving (Eq, Ord, Show, Generic)
 
 data Gauge = Gauge
   { name :: Text
-  , tags :: [Text]
+  , tags :: S.Set Tag
   } deriving (Eq, Ord, Show, Generic)
 
 type MetricMap k v = M.Map k (STM.TVar v)
