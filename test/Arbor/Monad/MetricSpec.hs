@@ -36,8 +36,9 @@ spec :: Spec
 spec = describe "Arbor.Monad.MetricSpec" $ do
   it "Metrics library actually tracks metrics it receives" $ requireTest $ do
     metrics <- liftIO $ A.runMetricApp $ do
-      M.metric (M.Counter "test.counter") 10
-      M.metric (M.Gauge   "test.gauge"  ) 20
+      M.metric (M.counter "test.counter"                        ) 10
+      M.metric (M.gauge   "test.gauge"                          ) 20
+      M.metric (M.gauge   "test.gauge"  & the @"tags" .~ ["foo"]) 30
       MT.getMetrics
 
     countersMap <- liftIO $ STM.readTVarIO $ metrics ^. the @"counters"
@@ -46,5 +47,9 @@ spec = describe "Arbor.Monad.MetricSpec" $ do
     counters  <- liftIO $ STM.atomically $ fst <$> M.extractValues @MT.Counter Proxy countersMap
     gauges    <- liftIO $ STM.atomically $ fst <$> M.extractValues @MT.Gauge   Proxy gaugesMap
 
-    counters === [(MT.Counter {MT.name = "test.counter" }, 10 )]
-    gauges   === [(MT.Gauge   {MT.name = "test.gauge"   }, 20 )]
+    counters ===  [ (M.counter "test.counter"                         , 10)
+                  ]
+
+    gauges   ===  [ (M.gauge   "test.gauge"                           , 20)
+                  , (M.gauge   "test.gauge"  & the @"tags" .~ ["foo"] , 30)
+                  ]

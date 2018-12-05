@@ -10,13 +10,17 @@ module Arbor.Monad.Metric
   , Metrics(..)
   , newMetricsIO
   , extractValues
+
+  , counter
+  , gauge
   ) where
 
 import Arbor.Monad.Metric.Generic  (metric)
-import Arbor.Monad.Metric.Type     (Counter (..), Gauge (..), MetricFamily (..), MetricMap, Metrics (Metrics), MonadMetrics)
+import Arbor.Monad.Metric.Type     (Counter, Gauge, MetricFamily (..), MetricMap, Metrics (Metrics), MonadMetrics)
 import Control.Concurrent.STM.TVar
 import Control.Monad.STM           (STM)
 import Data.Proxy
+import Data.Text                   (Text)
 
 import qualified Arbor.Monad.Metric.Type as Z
 import qualified Control.Concurrent.STM  as STM
@@ -37,3 +41,9 @@ extractValues pk m = do
   let tvars = M.elems m
   nums <- fmap (metricStateToValue pk <$>) . sequence $ readTVar <$> tvars
   return (zip names nums, tvars)
+
+counter :: Text -> Counter
+counter name = Z.Counter name []
+
+gauge :: Text -> Gauge
+gauge name = Z.Gauge name []
