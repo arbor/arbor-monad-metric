@@ -1,5 +1,5 @@
 name:           arbor-monad-metric
-version:        0.0.3
+version:        0.0.4
 description:    Please see the README on Github at <https://github.com/arbor/arbor-monad-metric#readme>
 synopsis:       Core metric library for publishing metrics.
 category:       Metrics
