@@ -16,18 +16,21 @@ import Control.Monad.Trans.Resource
 import Data.Generics.Product.Any
 import Data.Proxy
 import Data.Semigroup
+import Data.Text                    (Text)
 import GHC.Generics
 
 import qualified Control.Concurrent.STM as STM
 import qualified Data.Map.Strict        as M
 
-newtype Counter = Counter
-  { name :: String
-  } deriving (Eq, Ord, Show)
+data Counter = Counter
+  { name :: Text
+  , tags :: [Text]
+  } deriving (Eq, Ord, Show, Generic)
 
-newtype Gauge = Gauge
-  { name :: String
-  } deriving (Eq, Ord, Show)
+data Gauge = Gauge
+  { name :: Text
+  , tags :: [Text]
+  } deriving (Eq, Ord, Show, Generic)
 
 type MetricMap k v = M.Map k (STM.TVar v)
 
