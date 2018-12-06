@@ -23,6 +23,8 @@ source-repository head
 library
   exposed-modules:
       Arbor.Monad.Metric
+      Arbor.Monad.Metric.Api.String
+      Arbor.Monad.Metric.Api.Text
       Arbor.Monad.Metric.Generic
       Arbor.Monad.Metric.Type
   other-modules:
@@ -48,8 +50,11 @@ test-suite arbor-monad-metric-test
   main-is: Spec.hs
   other-modules:
       Arbor.Monad.Metric
+      Arbor.Monad.Metric.Api.String
+      Arbor.Monad.Metric.Api.Text
       Arbor.Monad.Metric.Generic
       Arbor.Monad.Metric.Type
+      Arbor.Monad.MetricApp
       Arbor.Monad.MetricSpec
       Paths_arbor_monad_metric
   hs-source-dirs:
