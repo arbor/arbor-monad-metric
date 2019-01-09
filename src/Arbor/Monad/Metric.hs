@@ -35,6 +35,7 @@ newMetricsIO :: IO Metrics
 newMetricsIO = Metrics
   <$> STM.newTVarIO M.empty
   <*> STM.newTVarIO M.empty
+  <*> STM.newTVarIO M.empty
 
 extractValues :: forall k. ()
   => MetricFamily k

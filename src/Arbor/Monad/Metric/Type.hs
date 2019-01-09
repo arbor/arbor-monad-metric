@@ -38,11 +38,17 @@ data Gauge = Gauge
   , tags :: S.Set Tag
   } deriving (Eq, Ord, Show, Generic)
 
+data GaugeCounter = GaugeCounter
+  { name :: Text
+  , tags :: S.Set Tag
+  } deriving (Eq, Ord, Show, Generic)
+
 type MetricMap k v = M.Map k (STM.TVar v)
 
 data Metrics = Metrics
-  { counters :: STM.TVar (MetricMap Counter (MetricState Counter))
-  , gauges   :: STM.TVar (MetricMap Gauge   (MetricState Gauge  ))
+  { counters      :: STM.TVar (MetricMap Counter      (MetricState Counter     ))
+  , gauges        :: STM.TVar (MetricMap Gauge        (MetricState Gauge       ))
+  , gaugeCounters :: STM.TVar (MetricMap GaugeCounter (MetricState GaugeCounter))
   } deriving (Generic)
 
 class (Monad m, MonadIO m) => MonadMetrics m where
@@ -92,3 +98,10 @@ instance MetricFamily Gauge where
   metricMapTVarOf = (^. the @"gauges")
   metricValueToState _ = Last
   metricStateToValue _ = getLast
+
+instance MetricFamily GaugeCounter where
+  type MetricValue GaugeCounter = Double
+  type MetricState GaugeCounter = Sum Double
+  metricMapTVarOf = (^. the @"gaugeCounters")
+  metricValueToState _ = Sum
+  metricStateToValue _ = getSum
