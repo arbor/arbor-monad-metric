@@ -57,6 +57,7 @@ library
       Arbor.Monad.Metric.Generic
       Arbor.Monad.Metric.Type
   other-modules:      Paths_arbor_monad_metric
+  autogen-modules:    Paths_arbor_monad_metric
   hs-source-dirs:     src
   default-extensions: BangPatterns FlexibleContexts FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings TupleSections
   ghc-options:        -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
