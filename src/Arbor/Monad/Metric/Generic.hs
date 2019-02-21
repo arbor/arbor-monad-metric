@@ -3,6 +3,7 @@
 
 module Arbor.Monad.Metric.Generic
   ( metric
+  , metric'
   ) where
 
 import Arbor.Monad.Metric.Type     (MetricFamily (..), Metrics, MonadMetrics)
