@@ -96,3 +96,4 @@ test-suite arbor-monad-metric-test
   default-extensions: BangPatterns FlexibleContexts FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings TupleSections
   ghc-options:        -threaded -rtsopts -with-rtsopts=-N
   build-depends:      arbor-monad-metric
+  build-tools:        hspec-discover
