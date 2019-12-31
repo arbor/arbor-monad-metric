@@ -88,7 +88,6 @@ test-suite arbor-monad-metric-test
                         Arbor.Monad.Metric.Type
                         Arbor.Monad.MetricApp
                         Arbor.Monad.MetricSpec
-                        Paths_arbor_monad_metric
   hs-source-dirs:       test
                         src
   default-extensions:   BangPatterns FlexibleContexts FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings TupleSections
